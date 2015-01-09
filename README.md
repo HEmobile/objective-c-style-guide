@@ -1,8 +1,6 @@
-# NYTimes Objective-C Style Guide
+# HE:mobile Objective-C Style Guide
 
-This style guide outlines the coding conventions of the iOS team at The New York Times. We welcome your feedback in [issues](https://github.com/NYTimes/objetive-c-style-guide/issues), [pull requests](https://github.com/NYTimes/objetive-c-style-guide/pulls) and [tweets](https://twitter.com/nytimesmobile). Also, [we're hiring](http://jobs.nytco.com/job/New-York-iOS-Developer-Job-NY/2572221/).
-
-Thanks to all of [our contributors](https://github.com/NYTimes/objective-c-style-guide/contributors).
+This style guide was forked from The New York Times Objective-C Style Guide and it have the conventions used by our iOS Team.
 
 ## Introduction
 
@@ -149,7 +147,7 @@ Property definitions should be used in place of naked instance variables wheneve
 **For example:**
 
 ```objc
-@interface NYTSection: NSObject
+@interface HEMSection: NSObject
 
 @property (nonatomic) NSString *headline;
 
@@ -159,7 +157,7 @@ Property definitions should be used in place of naked instance variables wheneve
 **Not:**
 
 ```objc
-@interface NYTSection : NSObject {
+@interface HEMSection : NSObject {
     NSString *headline;
 }
 ```
@@ -186,12 +184,12 @@ UIButton *settingsButton;
 UIButton *setBut;
 ```
 
-A three letter prefix (e.g. `NYT`) should always be used for class names and constants, however may be omitted for Core Data entity names. Constants should be camel-case with all words capitalized and prefixed by the related class name for clarity.
+A three letter prefix (e.g. `HEM`) should always be used for class names and constants, however may be omitted for Core Data entity names. Constants should be camel-case with all words capitalized and prefixed by the related class name for clarity.
 
 **For example:**
 
 ```objc
-static const NSTimeInterval NYTArticleViewControllerNavigationFadeAnimationDuration = 0.3;
+static const NSTimeInterval HEMArticleViewControllerNavigationFadeAnimationDuration = 0.3;
 ```
 
 **Not:**
@@ -296,15 +294,15 @@ Constants are preferred over in-line string literals or numbers, as they allow f
 **For example:**
 
 ```objc
-static NSString * const NYTAboutViewControllerCompanyName = @"The New York Times Company";
+static NSString * const HEMAboutViewControllerCompanyName = @"HE:mobile team";
 
-static const CGFloat NYTImageThumbnailHeight = 50.0;
+static const CGFloat HEMImageThumbnailHeight = 50.0;
 ```
 
 **Not:**
 
 ```objc
-#define CompanyName @"The New York Times Company"
+#define CompanyName @"HE:mobile team"
 
 #define thumbnailHeight 2
 ```
@@ -316,9 +314,9 @@ When using `enum`s, it is recommended to use the new fixed underlying type speci
 **Example:**
 
 ```objc
-typedef NS_ENUM(NSInteger, NYTAdRequestState) {
-    NYTAdRequestStateInactive,
-    NYTAdRequestStateLoading
+typedef NS_ENUM(NSInteger, HEMAdRequestState) {
+    HEMAdRequestStateInactive,
+    HEMAdRequestStateLoading
 };
 ```
 
@@ -329,22 +327,22 @@ When working with bitmasks, use the `NS_OPTIONS` macro.
 **Example:**
 
 ```objc
-typedef NS_OPTIONS(NSUInteger, NYTAdCategory) {
-  NYTAdCategoryAutos      = 1 << 0,
-  NYTAdCategoryJobs       = 1 << 1,
-  NYTAdCategoryRealState  = 1 << 2,
-  NYTAdCategoryTechnology = 1 << 3
+typedef NS_OPTIONS(NSUInteger, HEMAdCategory) {
+  HEMAdCategoryAutos      = 1 << 0,
+  HEMAdCategoryJobs       = 1 << 1,
+  HEMAdCategoryRealState  = 1 << 2,
+  HEMAdCategoryTechnology = 1 << 3
 };
 ```
 
 ## Private Properties
 
-Private properties should be declared in class extensions (anonymous categories) in the implementation file of a class. Named categories (such as `NYTPrivate` or `private`) should never be used unless extending another class.
+Private properties should be declared in class extensions (anonymous categories) in the implementation file of a class. Named categories (such as `HEMPrivate` or `private`) should never be used unless extending another class.
 
 **For example:**
 
 ```objc
-@interface NYTAdvertisement ()
+@interface HEMAdvertisement ()
 
 @property (nonatomic, strong) GADBannerView *googleAdView;
 @property (nonatomic, strong) ADBannerView *iAdView;
@@ -437,11 +435,11 @@ Note: For modules use the [@import](http://clang.llvm.org/docs/Modules.html#usin
 @import QuartzCore;
 
 // Models
-#import "NYTUser.h"
+#import "HEMUser.h"
 
 // Views
-#import "NYTButton.h"
-#import "NYTUserView.h"
+#import "HEMButton.h"
+#import "HEMUserView.h"
 ```
 
 ## Xcode project
