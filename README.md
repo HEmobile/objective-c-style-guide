@@ -2,6 +2,13 @@
 
 This style guide was forked from The New York Times Objective-C Style Guide and it have the conventions used by our iOS Team.
 
+## Credits
+
+This style guide it's basically a fork of the [New York Times Objective-C Style Guide](https://github.com/NYTimes/objective-c-style-guide), but we also used some parts of other great style guides:
+
+* [Ray Wenderlich Objective-C Style Guide](https://github.com/raywenderlich/objective-c-style-guide)
+* [Robots & Pencils Objective-C Style Guide](https://github.com/RobotsAndPencils/objective-c-style-guide)
+
 ## Introduction
 
 Here are some of the documents from Apple that informed the style guide. If something isn't mentioned here, it's probably covered in great detail in one of these:
@@ -18,12 +25,12 @@ Here are some of the documents from Apple that informed the style guide. If some
 * [Conditionals](#conditionals)
   * [Ternary Operator](#ternary-operator)
 * [Error handling](#error-handling)
-* [Methods](#methods)
 * [Variables](#variables)
 * [Naming](#naming)
 * [Comments](#comments)
 * [Init & Dealloc](#init-and-dealloc)
 * [Literals](#literals)
+* [Class Constructors](#class-constructors)
 * [CGRect Functions](#cgrect-functions)
 * [Constants](#constants)
 * [Enumerated Types](#enumerated-types)
@@ -31,6 +38,7 @@ Here are some of the documents from Apple that informed the style guide. If some
 * [Private Properties](#private-properties)
 * [Image Naming](#image-naming)
 * [Booleans](#booleans)
+* [Blocks](#blocks)
 * [Singletons](#singletons)
 * [Imports](#imports)
 * [Xcode Project](#xcode-project)
@@ -98,6 +106,7 @@ The Ternary operator, ? , should only be used when it increases clarity or code 
 **For example:**
 ```objc
 result = a > b ? x : y;
+obj = thingThatCouldBeNil ?: defaultValue;
 ```
 
 **Not:**
@@ -128,14 +137,6 @@ if (error) {
 
 Some of Apple’s APIs write garbage values to the error parameter (if non-NULL) in successful cases, so switching on the error can cause false negatives (and subsequently crash).
 
-## Methods
-
-In method signatures, there should be a space after the scope (-/+ symbol). There should be a space between the method segments.
-
-**For Example**:
-```objc
-- (void)setExampleText:(NSString *)text image:(UIImage *)image;
-```
 ## Variables
 
 Variables should be named as descriptively as possible. Single letter variable names should be avoided except in `for()` loops.
@@ -168,6 +169,8 @@ When it comes to the variable qualifiers [introduced with ARC](https://developer
 
 ## Naming
 
+### Properties
+
 Apple naming conventions should be adhered to wherever possible, especially those related to [memory management rules](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/MemoryMgmt/Articles/MemoryMgmt.html) ([NARC](http://stackoverflow.com/a/2865194/340508)).
 
 Long, descriptive method and variable names are good.
@@ -182,6 +185,19 @@ UIButton *settingsButton;
 
 ```objc
 UIButton *setBut;
+```
+
+The `*` should be nearest the variable, not the type.
+
+```objc
+NSString *text = @"foo";
+```
+
+**Not**
+
+```objc
+NSString* text = @"foo";
+NSString * text = @"foo";
 ```
 
 A three letter prefix (e.g. `HEM`) should always be used for class names and constants, however may be omitted for Core Data entity names. Constants should be camel-case with all words capitalized and prefixed by the related class name for clarity.
@@ -214,6 +230,77 @@ Instance variables should be camel-case with the leading word being lowercase, a
 id varnm;
 ```
 
+### Methods
+
+#### Always use lower camel case.
+
+**For Example:**
+
+```objc
+- (void)myTestMethod;
+```
+
+**Not:**
+
+```objc
+- (void)MyTestMethod;
+```
+
+or
+
+```objc
+- (void)my_test_method;
+```
+
+#### Parameter Keyword
+
+Use keywords for all parameters.
+
+**For Example:**
+
+```objc
+- (void)selectCity:(NSInteger)cityCode state:(NSInteger)stateCode country:(NSInteger)countryCode;
+```
+
+**Not:**
+
+```objc
+- (void)selectCity:(NSInteger)cityCode :(NSInteger)stateCode :(NSInteger)countryCode;
+```
+
+#### Signature Spacing
+
+For consistency method definitions should have a space between the scope modifier (+/-) and the return type.
+
+**For Example:**
+
+```objc
+- (void)myTestMethod;
+```
+
+**Not:**
+
+```objc
+-(void)myTestMethod;
+-(void) myTestMethod;
+- (void) myTestMethod;
+```
+
+For method parameters we should not have a space between the keyword and the parameter.
+
+**For Example:**
+
+```objc
+- (void)showText:(NSString *)myText;
+```
+
+**Not:**
+
+```objc
+- (void)showText:(NSString *) myText;
+- (void)showText: (NSString *)myText;
+```
+
 ## Comments
 
 When they are needed, comments should be used to explain **why** a particular piece of code does something. Any comments that are used must be kept up-to-date or deleted.
@@ -224,11 +311,22 @@ Block comments should generally be avoided, as code should be as self-documentin
 
 `dealloc` methods should be placed at the top of the implementation, directly after the `@synthesize` and `@dynamic` statements. `init` should be placed directly below the `dealloc` methods of any class.
 
+When you use ARC dealloc methods are no longer required, but in certain cases must be used to remove observers, KVO, etc.
+
+```objc
+- (void)dealloc 
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];  
+}
+```
+
 `init` methods should be structured like this:
 
 ```objc
-- (instancetype)init {
+- (instancetype)init 
+{
     self = [super init]; // or call the designated initializer
+
     if (self) {
         // Custom initialization
     }
@@ -257,6 +355,16 @@ NSArray *names = [NSArray arrayWithObjects:@"Brian", @"Matt", @"Chris", @"Alex",
 NSDictionary *productManagers = [NSDictionary dictionaryWithObjectsAndKeys: @"Kate", @"iPhone", @"Kamal", @"iPad", @"Bill", @"Mobile Web", nil];
 NSNumber *shouldUseLiterals = [NSNumber numberWithBool:YES];
 NSNumber *buildingZIPCode = [NSNumber numberWithInteger:10018];
+```
+
+## Class Constructors
+
+Where class constructor methods are used, these should always return type of `instancetype` and never `id`. This ensures the compiler correctly infers the result type.
+
+```objc
+@interface HEMCar
++ (instancetype)carWithColor:(UIColor *)color;
+@end
 ```
 
 ## CGRect Functions
@@ -289,7 +397,7 @@ CGFloat height = frame.size.height;
 
 ## Constants
 
-Constants are preferred over in-line string literals or numbers, as they allow for easy reproduction of commonly used variables and can be quickly changed without the need for find and replace. Constants should be declared as `static` constants and not `#define`s unless explicitly being used as a macro.
+Constants are preferred over in-line string literals or numbers, as they allow for easy reproduction of commonly used variables and can be quickly changed without the need for find and replace. Constants should not be declared as `#define`s unless explicitly being used as a macro.
 
 **For example:**
 
@@ -305,6 +413,18 @@ static const CGFloat HEMImageThumbnailHeight = 50.0;
 #define CompanyName @"HE:mobile team"
 
 #define thumbnailHeight 2
+```
+
+In some cases we need to make constants visible to other classes and but the constant value should be private. For this we should 'extern' our constants and to do this we use `FOUNDATION_EXTERN` macro.
+
+ **For example:**
+
+```objc
+// .m file
+NSString * const HEMAboutViewControllerCompanyName = @"HE:mobile team";
+
+// .h file
+FOUNDATION_EXTERN NSString * const HEMAboutViewControllerCompanyName;
 ```
 
 ## Enumerated Types
@@ -351,17 +471,6 @@ Private properties should be declared in class extensions (anonymous categories)
 @end
 ```
 
-## Image Naming
-
-Image names should be named consistently to preserve organization and developer sanity. They should be named as one camel case string with a description of their purpose, followed by the un-prefixed name of the class or property they are customizing (if there is one), followed by a further description of color and/or placement, and finally their state.
-
-**For example:**
-
-* `RefreshBarButtonItem` / `RefreshBarButtonItem@2x` and `RefreshBarButtonItemSelected` / `RefreshBarButtonItemSelected@2x`
-* `ArticleNavigationBarWhite` / `ArticleNavigationBarWhite@2x` and `ArticleNavigationBarBlackSelected` / `ArticleNavigationBarBlackSelected@2x`.
-
-Images that are used for a similar purpose should be grouped in respective groups in an Images folder.
-
 ## Booleans
 
 Since `nil` resolves to `NO` it is unnecessary to compare it in conditions. Never compare something directly to `YES`, because `YES` is defined to 1 and a `BOOL` can be up to 8 bits.
@@ -407,11 +516,27 @@ If the name of a `BOOL` property is expressed as an adjective, the property can 
 ```
 Text and example taken from the [Cocoa Naming Guidelines](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/Articles/NamingIvarsAndTypes.html#//apple_ref/doc/uid/20001284-BAJGIIJE).
 
+## Blocks
+
+* Blocks definitions should omit their return type when possible.
+* Parameters in block types should be named unless the block is initialized immediately.
+
+```objc
+void (^blockName1)(void) = ^{
+    // do some things
+};
+
+id (^blockName2)(id) = ^BOOL(id args) {
+    // do some things
+};
+```
+
 ## Singletons
 
 Singleton objects should use a thread-safe pattern for creating their shared instance.
 ```objc
-+ (instancetype)sharedInstance {
++ (instancetype)sharedInstance 
+{
    static id sharedInstance = nil;
 
    static dispatch_once_t onceToken;
@@ -454,8 +579,5 @@ If ours doesn't fit your tastes, have a look at some other style guides:
 
 * [Google](http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml)
 * [GitHub](https://github.com/github/objective-c-conventions)
-* [Adium](https://trac.adium.im/wiki/CodingStyle)
-* [Sam Soffes](https://gist.github.com/soffes/812796)
-* [CocoaDevCentral](http://cocoadevcentral.com/articles/000082.php)
-* [Luke Redpath](http://lukeredpath.co.uk/blog/my-objective-c-style-guide.html)
-* [Marcus Zarra](http://www.cimgf.com/zds-code-style-guide/)
+* [Ray Wenderlich](https://github.com/raywenderlich/objective-c-style-guide)
+* [Robots & Pencils](https://github.com/RobotsAndPencils/objective-c-style-guide)
