@@ -22,6 +22,7 @@ Here are some of the documents from Apple that informed the style guide. If some
 
 * [Dot-Notation Syntax](#dot-notation-syntax)
 * [Spacing](#spacing)
+* [Organization](#organization)
 * [Conditionals](#conditionals)
   * [Ternary Operator](#ternary-operator)
 * [Error handling](#error-handling)
@@ -62,6 +63,24 @@ UIApplication.sharedApplication.delegate;
 ## Spacing
 
 * Indent using 4 spaces. Never indent with tabs. Be sure to set this preference in Xcode.
+* Use one empty line between class extension and implementation in .m file.
+
+**For example:**
+
+```objc
+@interface MyClass ()
+
+// Properties - empty line above and below
+
+@end
+
+@implementation MyClass
+
+// Body - empty line above and below
+
+@end
+```
+
 * Method braces and other braces (`if`/`else`/`switch`/`while` etc.) always open on the same line as the statement but close on a new line.
 
 **For example:**
@@ -73,8 +92,83 @@ else {
 //Do something else
 }
 ```
+
+* When using pragma marks leave 1 newline before and after.
+* When doing math use a single space between operators. Unless that operator is unary in which case don't use a space.
+* Colon-aligning method invocation should often be avoided. There are cases where a method signature may have >= 3 colons and colon-aligning makes the code more readable. Please do NOT however colon align methods containing blocks because Xcode's indenting makes it illegible.
+
+**For example:**
+
+```objc
+// blocks are easily readable
+[UIView animateWithDuration:1.0 animations:^{
+    // something
+} completion:^(BOOL finished) {
+    // something
+}];
+```
+
+**Not:**
+
+```objc
+// colon-aligning makes the block indentation wacky and hard to read
+[UIView animateWithDuration:1.0
+                 animations:^{
+                     // something
+                 }
+                 completion:^(BOOL finished) {
+                     // something
+                 }];
+```
+
 * There should be exactly one blank line between methods to aid in visual clarity and organization. Whitespace within methods should separate functionality, but often there should probably be new methods.
 * `@synthesize` and `@dynamic` should each be declared on new lines in the implementation.
+
+## Organization
+
+Use #pragma mark -s to categorize methods in functional groupings and protocol/delegate implementations following this general structure.
+
+**For example:**
+
+```objc
+#pragma mark - Lifecycle
+
++ (instancetype)objectWithThing:(id)thing {}
+- (instancetype)init {}
+- (void)dealloc {}
+- (void)viewDidLoad {}
+- (void)didReceiveMemoryWarning {}
+
+#pragma mark - Custom Accessors
+
+- (void)setCustomProperty:(id)property {}
+- (id)anotherCustomProperty {}
+
+#pragma mark - Actions
+
+- (IBAction)submitData:(id)sender {}
+
+#pragma mark - Public
+
+- (void)publicMethod {}
+
+#pragma mark - Private
+
+- (void)privateMethod {}
+
+#pragma mark - Protocol conformance
+#pragma mark - UITextFieldDelegate
+#pragma mark - UITableViewDataSource
+#pragma mark - UITableViewDelegate
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone {}
+
+#pragma mark - NSObject
+
+- (NSString *)description {}
+```
 
 ## Conditionals
 
@@ -169,6 +263,32 @@ When it comes to the variable qualifiers [introduced with ARC](https://developer
 
 ## Naming
 
+### Classes
+
+A three letter prefix (e.g. `HEM`) should always be used for class and some types of class should have a suffix. 
+
+**For example:**
+
+* View Controllers should have a suffix `VC`.
+* Table View Cells should have a suffix `Cell`.
+* Client classes should have a suffix `Client`.
+
+### Constants
+
+A three letter prefix (e.g. `HEM`) should always be used for constants. Constants should be camel-case with all words capitalized and prefixed by the related class name for clarity.
+
+**For example:**
+
+```objc
+static const NSTimeInterval HEMArticleViewControllerNavigationFadeAnimationDuration = 0.3;
+```
+
+**Not:**
+
+```objc
+static const NSTimeInterval fadetime = 1.7;
+```
+
 ### Properties
 
 Apple naming conventions should be adhered to wherever possible, especially those related to [memory management rules](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/MemoryMgmt/Articles/MemoryMgmt.html) ([NARC](http://stackoverflow.com/a/2865194/340508)).
@@ -198,20 +318,6 @@ NSString *text = @"foo";
 ```objc
 NSString* text = @"foo";
 NSString * text = @"foo";
-```
-
-A three letter prefix (e.g. `HEM`) should always be used for class names and constants, however may be omitted for Core Data entity names. Constants should be camel-case with all words capitalized and prefixed by the related class name for clarity.
-
-**For example:**
-
-```objc
-static const NSTimeInterval HEMArticleViewControllerNavigationFadeAnimationDuration = 0.3;
-```
-
-**Not:**
-
-```objc
-static const NSTimeInterval fadetime = 1.7;
 ```
 
 Properties and local variables should be camel-case with the leading word being lowercase.
